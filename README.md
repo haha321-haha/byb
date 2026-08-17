@@ -35,3 +35,16 @@ hosting provider. `WAFFO_PRIVATE_KEY` (or its base64 form) is server-only.
 The first deployment is a Preview validation build. Production payment remains
 disabled until Waffo review, Test Mode end-to-end verification, and explicit
 Founder approval are complete.
+
+## Test Mode webhook
+
+Register this HTTPS endpoint in Waffo Test Mode:
+
+```text
+https://<your-vercel-host>/api/waffo-webhook
+```
+
+It verifies `X-Waffo-Signature` with the SDK, requires `mode=test`, and accepts
+events only for the reviewed Store ID. It logs non-sensitive event identifiers
+for manual Founder review; it does not automatically fulfil an order or treat a
+test event as revenue.
