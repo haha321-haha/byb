@@ -1,0 +1,16 @@
+{
+  "name": "byb-commercial-validation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "verify": "python3 verify_validation_bundle.py && npm test"
+  },
+  "dependencies": {
+    "@waffo/pancake-ts": "0.16.1"
+  }
+}

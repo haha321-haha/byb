@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.vercel/
+npm-debug.log*
+__pycache__/
+*.pyc
+
+# Internal discovery, outreach, review, and operating records are not part of
+# the public commercial-validation repository.
+[0-9][0-9]_*.md
+[0-9][0-9]_*.csv
+task_plan.md
+findings.md
+progress.md

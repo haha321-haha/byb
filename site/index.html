@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A founder-reviewed, evidence-linked Mini Decision Aid for AI solo founders.">
+  <title>BYB Mini Decision Aid</title>
+  <style>
+    :root { --ink:#172033; --muted:#5e687b; --paper:#f4f1e9; --card:#fffdf8; --line:#dcd7cb; --accent:#e25a33; --dark:#1f3152; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color:inherit; }
+    .shell { width:min(1080px, calc(100% - 32px)); margin:auto; }
+    header { padding:24px 0; display:flex; justify-content:space-between; align-items:center; }
+    .brand { font-weight:800; letter-spacing:.08em; }
+    .status { padding:7px 11px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:13px; background:rgba(255,255,255,.45); }
+    .hero { display:grid; grid-template-columns:1.25fr .75fr; gap:44px; align-items:center; padding:64px 0 70px; }
+    .eyebrow { color:var(--accent); font-weight:750; text-transform:uppercase; letter-spacing:.08em; font-size:13px; }
+    h1 { font-family:Georgia, serif; font-size:clamp(42px,7vw,76px); line-height:1.02; letter-spacing:-.045em; margin:14px 0 22px; }
+    .lede { max-width:690px; color:var(--muted); font-size:19px; }
+    .price-card { background:var(--dark); color:white; padding:30px; border-radius:22px; box-shadow:0 22px 60px rgba(31,49,82,.18); }
+    .price { font:700 52px/1 Georgia, serif; margin:12px 0; }
+    .price-card p { color:#d6deed; }
+    .button { display:inline-flex; justify-content:center; width:100%; padding:14px 18px; border:0; border-radius:10px; font-weight:750; text-decoration:none; }
+    .button.test { background:#f4c95d; color:#172033; cursor:pointer; }
+    .button.test:disabled { opacity:.7; cursor:wait; }
+    .button.disabled { background:#cfd5df; color:#526078; cursor:not-allowed; }
+    .sample-link { display:inline-block; margin-top:14px; color:#fff; font-weight:700; text-underline-offset:3px; }
+    .small { font-size:13px; color:#aebbd0; margin-top:12px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:70px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:24px; }
+    .card h2 { font:700 24px/1.2 Georgia, serif; margin:0 0 14px; }
+    ul,ol { padding-left:21px; }
+    li + li { margin-top:8px; }
+    .process { padding:48px 0 72px; border-top:1px solid var(--line); }
+    .process h2, .form-wrap h2 { font:700 clamp(30px,4vw,46px)/1.1 Georgia, serif; margin:0 0 24px; }
+    .form-wrap { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:32px; margin-bottom:28px; }
+    form { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    label { font-weight:700; font-size:14px; }
+    label span { display:block; margin-bottom:6px; }
+    input, textarea { width:100%; border:1px solid #cfc9bc; border-radius:9px; padding:12px; background:white; font:inherit; }
+    input[type="checkbox"] { width:auto; margin-right:8px; padding:0; }
+    textarea { min-height:110px; resize:vertical; }
+    .wide { grid-column:1/-1; }
+    .notice { grid-column:1/-1; padding:14px; border-left:4px solid var(--accent); background:#fff4ef; color:#754230; }
+    footer { padding:30px 0 48px; color:var(--muted); font-size:13px; display:flex; flex-wrap:wrap; gap:10px 18px; }
+    @media (max-width:760px) { .hero,.grid,form { grid-template-columns:1fr; } .hero { padding-top:34px; } .wide,.notice { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><div class="brand">BYB</div><div class="status">Validation pilot · founder reviewed</div></header>
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">For AI solo founders facing one real decision</div>
+          <h1>Make the decision explicit before you build more.</h1>
+          <p class="lede">An evidence-linked Mini Decision Aid for deciding whether to continue, narrow, reposition, or stop. Missing evidence stays missing; counter-evidence is shown, not hidden.</p>
+        </div>
+        <aside class="price-card">
+          <div>One product · one decision</div>
+          <div class="price">$19</div>
+          <p>Delivered within 48 hours after payment confirmation and complete usable inputs. One clarification round included. No subscription or automatic renewal.</p>
+          <button class="button test" type="button" data-test-checkout>Open Waffo Test Checkout</button>
+          <a class="sample-link" href="sample.html">View a fictional one-page sample →</a>
+          <div class="small" data-checkout-status>Test Mode only. Production checkout remains disabled; test activity is never revenue or a customer order.</div>
+        </aside>
+      </section>
+
+      <section class="grid" aria-label="Offer details">
+        <article class="card"><h2>Bring</h2><ol><li>Your product or demo URL</li><li>The one decision due now</li><li>Up to five evidence links</li><li>Users, revenue and channels—including zeroes</li><li>Your decision deadline</li></ol></article>
+        <article class="card"><h2>Receive</h2><ul><li>A precise decision statement</li><li>Evidence for and against</li><li>Current call, confidence and unknowns</li><li>A bounded seven-day test</li><li>Continue, watch and stop thresholds</li><li>Direct source links</li></ul></article>
+        <article class="card"><h2>Not promised</h2><p>No guaranteed success, revenue, funding, legal advice, medical advice, or automated encouragement. BYB is designed to reduce avoidable decision waste, not predict the future.</p></article>
+      </section>
+
+      <section class="process">
+        <h2>A small deliverable with a hard boundary.</h2>
+        <p>BYB is appropriate when an AI solo founder has one concrete choice: keep building, narrow the ICP or workflow, prove an existing feature, change positioning, or stop. It is not an idea generator or a long automated report.</p>
+      </section>
+
+      <section class="form-wrap" id="request">
+        <h2>Preview the input request</h2>
+        <form onsubmit="return false">
+          <label><span>Name or public handle</span><input disabled placeholder="Your public identity"></label>
+          <label><span>Email</span><input disabled type="email" placeholder="Delivery email"></label>
+          <label class="wide"><span>Product URL</span><input disabled type="url" placeholder="Website or demo"></label>
+          <label class="wide"><span>The decision you need to make</span><textarea disabled placeholder="One decision, not a list of questions"></textarea></label>
+          <label class="wide"><input disabled type="checkbox"> I have permission to share these inputs and have removed secrets and sensitive personal data.</label>
+          <label class="wide"><input disabled type="checkbox"> I consent to public-source research, AI-assisted processing, and Founder review for this order.</label>
+          <label class="wide"><input disabled type="checkbox"> I understand this is decision support, not guaranteed results or legal, medical, financial, investment, or employment advice.</label>
+          <div class="notice">Preview only: customer input and production payment remain disabled. The Test Mode button creates only a Waffo sandbox checkout; it does not authorize fulfillment or count as revenue.</div>
+        </form>
+      </section>
+    </main>
+    <footer><span>BYB validation pilot · WATCH · confidence 0.55 · validation_only</span><a href="mailto:tiyibaofu@outlook.com">Contact</a><a href="privacy.html">Privacy draft</a><a href="terms.html">Terms draft</a><a href="refund.html">Refund draft</a></footer>
+  </div>
+  <script src="checkout-test.js" defer></script>
+</body>
+</html>
