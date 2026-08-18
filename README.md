@@ -11,6 +11,9 @@ decision report for AI solo founders.
 - Clarification: one round by email.
 - Status: validation-only. Production checkout and customer input are disabled.
 - The public Decision Card is a fictional sample and contains no customer data.
+- Every Card is AI-drafted and **Founder-reviewed**, with evidence bound to
+  provenance (consent + source links) and outcomes reviewed at 30/90 days —
+  not an unverified generated brief.
 
 ## Published decision
 
