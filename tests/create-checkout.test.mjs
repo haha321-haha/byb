@@ -7,7 +7,7 @@ const validEnv = {
   WAFFO_MERCHANT_ID: "MER_4fIWy0Facbl75gjrvAnBae",
   WAFFO_STORE_ID: "STO_27y76CY0tN6xZYUgt6J3YL",
   WAFFO_PRODUCT_ID: "PROD_4HCgyZAZ1EaR1B2PXU9GKD",
-  WAFFO_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nsynthetic-test-only\n-----END PRIVATE KEY-----",
+  WAFFO_PRIVATE_KEY: "synthetic-test-key-material PRIVATE KEY",
   BYB_PUBLIC_BASE_URL: "https://byb-preview.example",
 };
 
@@ -40,7 +40,7 @@ test("creates one-time USD checkout without exposing the private key", async () 
   });
 
   assert.equal(receivedConfig.merchantId, validEnv.WAFFO_MERCHANT_ID);
-  assert.match(receivedConfig.privateKey, /PRIVATE KEY/);
+  assert.equal(receivedConfig.privateKey, validEnv.WAFFO_PRIVATE_KEY);
   assert.deepEqual(receivedPayload, {
     productId: validEnv.WAFFO_PRODUCT_ID,
     productType: "onetime",
@@ -59,7 +59,7 @@ test("creates one-time USD checkout without exposing the private key", async () 
     expiresAt: "2026-08-17T12:00:00.000Z",
     mode: "test",
   });
-  assert.doesNotMatch(JSON.stringify(result), /PRIVATE KEY|synthetic-test-only/);
+  assert.doesNotMatch(JSON.stringify(result), /synthetic-test-key-material/);
 });
 
 test("rejects an insecure checkout URL", async () => {

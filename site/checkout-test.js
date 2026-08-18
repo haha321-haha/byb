@@ -19,7 +19,7 @@ button?.addEventListener("click", async () => {
       throw new Error(result.error || "Test checkout unavailable");
     }
     if (checkoutWindow) checkoutWindow.location.replace(result.checkoutUrl);
-    else window.open(result.checkoutUrl, "_blank", "noopener,noreferrer");
+    else window.location.assign(result.checkoutUrl);
     status.textContent = "Waffo Test Mode opened in a new tab. It is not revenue or a real order.";
   } catch (error) {
     if (checkoutWindow) checkoutWindow.close();

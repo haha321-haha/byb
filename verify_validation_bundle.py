@@ -3,6 +3,7 @@
 
 from pathlib import Path
 from html.parser import HTMLParser
+import json
 import re
 import sys
 
@@ -41,6 +42,12 @@ def main() -> int:
     refund = read(SITE / "refund.html")
     next_steps = read(SITE / "next-steps.html")
     sample = read(SITE / "sample.html")
+    vercel_config = json.loads(read(ROOT / "vercel.json"))
+    rewrites = {
+        item["source"]: item["destination"]
+        for item in vercel_config.get("rewrites", [])
+        if "source" in item and "destination" in item
+    }
 
     for page in SITE.glob("*.html"):
         parser = LinkCollector()
@@ -48,9 +55,22 @@ def main() -> int:
         for href in parser.hrefs:
             if href.startswith(("mailto:", "http://", "https://", "#")):
                 continue
-            target = (page.parent / href.split("#", 1)[0]).resolve()
+            route = href.split("#", 1)[0].split("?", 1)[0]
+            if not route:
+                continue
+            if route.startswith("/"):
+                destination = rewrites.get(route)
+                if destination is None:
+                    raise AssertionError(f"{page.name}: unmapped root-relative link {href}")
+                target = (ROOT / destination.lstrip("/")).resolve()
+            else:
+                target = (page.parent / route).resolve()
+            try:
+                target.relative_to(ROOT)
+            except ValueError:
+                raise AssertionError(f"{page.name}: local link escapes repository {href}")
             if not target.exists():
-                raise AssertionError(f"{page.name}: broken relative link {href}")
+                raise AssertionError(f"{page.name}: broken local link {href}")
 
     for label, text in {
         "index": index,
@@ -69,7 +89,7 @@ def main() -> int:
 
     require(index, [
         "No subscription", "automatic renewal", "Open Waffo Test Checkout", "Test Mode only",
-        "Production checkout remains disabled", "sample.html", "checkout-test.js",
+        "Production checkout remains disabled", 'href="/sample"', "checkout-test.js",
     ], "index")
     require(terms, ["payment is confirmed", "complete, usable inputs", "separate agreement"], "terms")
     require(refund, ["full refund", "two business days", "Merchant-of-Record"], "refund")
@@ -83,7 +103,6 @@ def main() -> int:
     test_client = read(SITE / "checkout-test.js")
     require(test_client, [
         "/api/create-checkout", "result.mode !== \"test\"", "checkoutWindow.opener = null",
-        "noopener,noreferrer",
     ], "test-client")
     if "WAFFO_PRIVATE_KEY" in test_client:
         raise AssertionError("test-client: private-key reference must remain server-side")
@@ -103,7 +122,7 @@ def main() -> int:
     require(sample, ["fictional", "does not exist", "not market research"], "sample-boundary")
 
     print("PASS: 6 site pages")
-    print("PASS: local HTML parsed and relative links resolve")
+    print("PASS: local HTML links resolve through configured Vercel rewrites")
     print("PASS: USD 19 / 48 hours / one clarification / one product / one decision aligned")
     print("PASS: production checkout and customer input remain disabled; Test Mode boundary is explicit")
     print("PASS: public sample required sections and fictional-data boundary")
