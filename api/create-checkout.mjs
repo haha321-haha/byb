@@ -78,12 +78,16 @@ export default async function handler(req, res) {
     return res.status(200).json(result);
   } catch (error) {
     const configurationError = error?.code === "CONFIGURATION_ERROR";
-    if (configurationError) console.error("Waffo Test Mode configuration is incomplete");
-    else console.error("Waffo Test Mode checkout creation failed");
-    return res.status(configurationError ? 503 : 502).json({
-      error: configurationError
-        ? "Test checkout is not configured yet."
-        : "Test checkout could not be created.",
+    if (configurationError) {
+      console.error("Waffo Test Mode configuration is incomplete", error?.details ?? []);
+      return res.status(503).json({
+        error: "Test checkout is not configured yet.",
+        details: error?.details ?? [],
+      });
+    }
+    console.error("Waffo Test Mode checkout creation failed");
+    return res.status(502).json({
+      error: "Test checkout could not be created.",
     });
   }
 }
