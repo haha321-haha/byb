@@ -17,6 +17,32 @@ test("rejects anything except the reviewed Test Mode configuration", () => {
   assert.ok(validateConfiguration({ ...validEnv, WAFFO_PRIVATE_KEY: "" }).length > 0);
 });
 
+test("accepts a bare base64 private key body (Waffo dashboard .env format)", async () => {
+  const env = { ...validEnv, WAFFO_PRIVATE_KEY: "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC" };
+  assert.deepEqual(validateConfiguration(env), []);
+  const result = await createTestCheckout({
+    env,
+    createClient: (config) => {
+      assert.equal(config.privateKey, env.WAFFO_PRIVATE_KEY);
+      return {
+        checkout: { createSession: async () => ({ checkoutUrl: "https://checkout.example/t", mode: "test" }) },
+      };
+    },
+  });
+  assert.equal(result.checkoutUrl, "https://checkout.example/t");
+});
+
+test("accepts a base64-encoded PEM in WAFFO_PRIVATE_KEY_BASE64", () => {
+  const pem = "-----BEGIN PRIVATE KEY-----\nsynthetic-test-only\n-----END PRIVATE KEY-----";
+  const env = { ...validEnv, WAFFO_PRIVATE_KEY: undefined, WAFFO_PRIVATE_KEY_BASE64: Buffer.from(pem).toString("base64") };
+  assert.deepEqual(validateConfiguration(env), []);
+});
+
+test("rejects WAFFO_PRIVATE_KEY_BASE64 that does not decode to PEM text", () => {
+  const env = { ...validEnv, WAFFO_PRIVATE_KEY: undefined, WAFFO_PRIVATE_KEY_BASE64: Buffer.from("not-a-key").toString("base64") };
+  assert.ok(validateConfiguration(env).length > 0);
+});
+
 test("creates one-time USD checkout without exposing the private key", async () => {
   let receivedConfig;
   let receivedPayload;

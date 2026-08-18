@@ -11,6 +11,17 @@ function getPrivateKey(env) {
   return env.WAFFO_PRIVATE_KEY?.replace(/\\n/g, "\n") ?? "";
 }
 
+// The SDK (normalizePrivateKey) accepts both PEM text ("-----BEGIN PRIVATE
+// KEY----- ...") and a bare base64 key body (the Waffo dashboard hands the
+// latter out in its .env snippet). Validation must accept the same formats
+// or the official dashboard value is rejected before it reaches the SDK.
+function looksLikePrivateKey(value) {
+  const normalized = String(value ?? "").replace(/\\n/g, "\n").trim();
+  if (normalized.includes("PRIVATE KEY")) return true;
+  const body = normalized.replace(/\s+/g, "");
+  return /^[A-Za-z0-9+/]+=*$/.test(body);
+}
+
 export function validateConfiguration(env) {
   const errors = [];
   if (env.WAFFO_ENVIRONMENT !== "test") errors.push("WAFFO_ENVIRONMENT must be test");
@@ -18,7 +29,14 @@ export function validateConfiguration(env) {
     const envName = `WAFFO_${name.replace(/([A-Z])/g, "_$1").toUpperCase()}`;
     if (env[envName] !== expected) errors.push(`${envName} does not match the reviewed Test Mode artifact`);
   }
-  if (!getPrivateKey(env).includes("PRIVATE KEY")) errors.push("A Test Mode Waffo private key is required");
+  if (env.WAFFO_PRIVATE_KEY_BASE64) {
+    // Base64 form must decode to PEM text containing the header.
+    if (!getPrivateKey(env).includes("PRIVATE KEY")) {
+      errors.push("WAFFO_PRIVATE_KEY_BASE64 must be the base64 of the PEM private key text");
+    }
+  } else if (!looksLikePrivateKey(env.WAFFO_PRIVATE_KEY)) {
+    errors.push("A Test Mode Waffo private key is required (PEM text or base64 key body)");
+  }
   return errors;
 }
 
