@@ -109,8 +109,8 @@ def main() -> int:
 
     endpoint = read(ROOT / "api" / "create-checkout.mjs")
     require(endpoint, [
-        "WAFFO_ENVIRONMENT !== \"test\"", "productType: \"onetime\"", "currency: \"USD\"",
-        "client.checkout.createSession", "mode: \"test\"", "Cache-Control", "no-store",
+        "VALID_ENVIRONMENTS", "PRODUCT_IDS", "productType: \"onetime\"", "currency: \"USD\"",
+        "client.checkout.createSession", "mode: environment", "Cache-Control", "no-store",
     ], "checkout-endpoint")
     if "priceSnapshot" in endpoint:
         raise AssertionError("checkout-endpoint: price must come from the reviewed dashboard product")

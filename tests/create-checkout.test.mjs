@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createTestCheckout, validateConfiguration } from "../api/create-checkout.mjs";
+import { createCheckout, validateConfiguration } from "../api/create-checkout.mjs";
 
 const validEnv = {
   WAFFO_ENVIRONMENT: "test",
@@ -11,16 +11,27 @@ const validEnv = {
   BYB_PUBLIC_BASE_URL: "https://byb-preview.example",
 };
 
-test("rejects anything except the reviewed Test Mode configuration", () => {
-  assert.ok(validateConfiguration({ ...validEnv, WAFFO_ENVIRONMENT: "prod" }).length > 0);
+test("rejects anything except the reviewed configuration", () => {
+  assert.ok(validateConfiguration({ ...validEnv, WAFFO_ENVIRONMENT: "staging" }).length > 0);
   assert.ok(validateConfiguration({ ...validEnv, WAFFO_PRODUCT_ID: "PROD_other" }).length > 0);
   assert.ok(validateConfiguration({ ...validEnv, WAFFO_PRIVATE_KEY: "" }).length > 0);
+  // prod environment with the test product id must be rejected (product id is env-specific)
+  assert.ok(validateConfiguration({ ...validEnv, WAFFO_ENVIRONMENT: "prod" }).length > 0);
+});
+
+test("accepts a valid production configuration", () => {
+  const prodEnv = {
+    ...validEnv,
+    WAFFO_ENVIRONMENT: "prod",
+    WAFFO_PRODUCT_ID: "PROD_0cVK550kF6yMVDD8FnwvcW",
+  };
+  assert.deepEqual(validateConfiguration(prodEnv), []);
 });
 
 test("accepts a bare base64 private key body (Waffo dashboard .env format)", async () => {
   const env = { ...validEnv, WAFFO_PRIVATE_KEY: "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC" };
   assert.deepEqual(validateConfiguration(env), []);
-  const result = await createTestCheckout({
+  const result = await createCheckout({
     env,
     createClient: (config) => {
       assert.equal(config.privateKey, env.WAFFO_PRIVATE_KEY);
@@ -46,7 +57,7 @@ test("rejects WAFFO_PRIVATE_KEY_BASE64 that does not decode to PEM text", () => 
 test("creates one-time USD checkout without exposing the private key", async () => {
   let receivedConfig;
   let receivedPayload;
-  const result = await createTestCheckout({
+  const result = await createCheckout({
     env: validEnv,
     createClient: (config) => {
       receivedConfig = config;
@@ -73,9 +84,9 @@ test("creates one-time USD checkout without exposing the private key", async () 
     currency: "USD",
     successUrl: "https://byb-preview.example/next-steps",
     metadata: {
-      purpose: "byb_validation_test",
+      purpose: "byb_decision_aid",
       storeId: validEnv.WAFFO_STORE_ID,
-      commercialStatus: "validation_only",
+      environment: "test",
     },
     expiresInSeconds: 1800,
   });
@@ -90,7 +101,7 @@ test("creates one-time USD checkout without exposing the private key", async () 
 
 test("rejects an insecure checkout URL", async () => {
   await assert.rejects(
-    createTestCheckout({
+    createCheckout({
       env: validEnv,
       createClient: () => ({ checkout: { createSession: async () => ({ checkoutUrl: "http://invalid" }) } }),
     }),

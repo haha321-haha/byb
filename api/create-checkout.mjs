@@ -1,8 +1,11 @@
-const REQUIRED_IDS = {
-  merchantId: "MER_4fIWy0Facbl75gjrvAnBae",
-  storeId: "STO_27y76CY0tN6xZYUgt6J3YL",
-  productId: "PROD_4HCgyZAZ1EaR1B2PXU9GKD",
+const REVIEWED_MERCHANT_ID = "MER_4fIWy0Facbl75gjrvAnBae";
+const REVIEWED_STORE_ID = "STO_27y76CY0tN6xZYUgt6J3YL";
+// Product IDs are environment-specific; Merchant and Store are shared.
+const PRODUCT_IDS = {
+  test: "PROD_4HCgyZAZ1EaR1B2PXU9GKD",
+  prod: "PROD_0cVK550kF6yMVDD8FnwvcW",
 };
+const VALID_ENVIRONMENTS = ["test", "prod"];
 
 function getPrivateKey(env) {
   if (env.WAFFO_PRIVATE_KEY_BASE64) {
@@ -24,10 +27,19 @@ function looksLikePrivateKey(value) {
 
 export function validateConfiguration(env) {
   const errors = [];
-  if (env.WAFFO_ENVIRONMENT !== "test") errors.push("WAFFO_ENVIRONMENT must be test");
-  for (const [name, expected] of Object.entries(REQUIRED_IDS)) {
-    const envName = `WAFFO_${name.replace(/([A-Z])/g, "_$1").toUpperCase()}`;
-    if (env[envName] !== expected) errors.push(`${envName} does not match the reviewed Test Mode artifact`);
+  const environment = env.WAFFO_ENVIRONMENT;
+  if (!VALID_ENVIRONMENTS.includes(environment)) {
+    errors.push("WAFFO_ENVIRONMENT must be test or prod");
+  }
+  if (env.WAFFO_MERCHANT_ID !== REVIEWED_MERCHANT_ID) {
+    errors.push("WAFFO_MERCHANT_ID does not match the reviewed artifact");
+  }
+  if (env.WAFFO_STORE_ID !== REVIEWED_STORE_ID) {
+    errors.push("WAFFO_STORE_ID does not match the reviewed artifact");
+  }
+  const expectedProductId = PRODUCT_IDS[environment];
+  if (expectedProductId && env.WAFFO_PRODUCT_ID !== expectedProductId) {
+    errors.push(`WAFFO_PRODUCT_ID does not match the reviewed ${environment} artifact`);
   }
   if (env.WAFFO_PRIVATE_KEY_BASE64) {
     // Base64 form must decode to PEM text containing the header.
@@ -35,20 +47,21 @@ export function validateConfiguration(env) {
       errors.push("WAFFO_PRIVATE_KEY_BASE64 must be the base64 of the PEM private key text");
     }
   } else if (!looksLikePrivateKey(env.WAFFO_PRIVATE_KEY)) {
-    errors.push("A Test Mode Waffo private key is required (PEM text or base64 key body)");
+    errors.push("A Waffo private key is required (PEM text or base64 key body)");
   }
   return errors;
 }
 
-export async function createTestCheckout({ env, createClient }) {
+export async function createCheckout({ env, createClient }) {
   const errors = validateConfiguration(env);
   if (errors.length) {
-    const error = new Error("Test checkout is not configured");
+    const error = new Error("Checkout is not configured");
     error.code = "CONFIGURATION_ERROR";
     error.details = errors;
     throw error;
   }
 
+  const environment = env.WAFFO_ENVIRONMENT;
   const client = createClient({
     merchantId: env.WAFFO_MERCHANT_ID,
     privateKey: getPrivateKey(env),
@@ -62,9 +75,9 @@ export async function createTestCheckout({ env, createClient }) {
     currency: "USD",
     ...(successUrl ? { successUrl } : {}),
     metadata: {
-      purpose: "byb_validation_test",
+      purpose: "byb_decision_aid",
       storeId: env.WAFFO_STORE_ID,
-      commercialStatus: "validation_only",
+      environment,
     },
     expiresInSeconds: 1800,
   });
@@ -76,7 +89,7 @@ export async function createTestCheckout({ env, createClient }) {
     checkoutUrl: session.checkoutUrl,
     sessionId: session.sessionId ?? null,
     expiresAt: session.expiresAt ?? null,
-    mode: "test",
+    mode: environment,
   };
 }
 
@@ -89,7 +102,7 @@ export default async function handler(req, res) {
 
   try {
     const { WaffoPancake } = await import("@waffo/pancake-ts");
-    const result = await createTestCheckout({
+    const result = await createCheckout({
       env: process.env,
       createClient: (config) => new WaffoPancake(config),
     });
@@ -97,15 +110,15 @@ export default async function handler(req, res) {
   } catch (error) {
     const configurationError = error?.code === "CONFIGURATION_ERROR";
     if (configurationError) {
-      console.error("Waffo Test Mode configuration is incomplete", error?.details ?? []);
+      console.error("Waffo checkout configuration is incomplete", error?.details ?? []);
       return res.status(503).json({
-        error: "Test checkout is not configured yet.",
+        error: "Checkout is not configured yet.",
         details: error?.details ?? [],
       });
     }
-    console.error("Waffo Test Mode checkout creation failed");
+    console.error("Waffo checkout creation failed");
     return res.status(502).json({
-      error: "Test checkout could not be created.",
+      error: "Checkout could not be created.",
     });
   }
 }
