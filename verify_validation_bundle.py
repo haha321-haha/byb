@@ -88,21 +88,21 @@ def main() -> int:
             raise AssertionError(f"{label}: missing one-decision scope")
 
     require(index, [
-        "No subscription", "automatic renewal", "Open Waffo Test Checkout", "Test Mode only",
-        "Production checkout remains disabled", 'href="/sample"', "checkout-test.js",
+        "No subscription", "automatic renewal", "Get your decision", "Waffo Pancake",
+        'href="/sample"', "checkout-test.js",
     ], "index")
     require(terms, ["payment is confirmed", "complete, usable inputs", "separate agreement"], "terms")
     require(refund, ["full refund", "two business days", "Merchant-of-Record"], "refund")
     require(privacy, ["30 days", "90 days", "AI-assisted", "Microsoft Outlook"], "privacy")
     require(next_steps, ["payment is confirmed", "tiyibaofu@outlook.com"], "next-steps")
 
-    if re.search(r"<input(?![^>]*disabled)|<textarea(?![^>]*disabled)", index, re.I):
-        raise AssertionError("index: found enabled form control")
+    if re.search(r"<input[^>]*disabled|<textarea[^>]*disabled", index, re.I):
+        raise AssertionError("index: found disabled form control (form must be enabled for production)")
     if "WAFFO_PRIVATE_KEY" in index or "WAFFO_MERCHANT_ID" in index:
         raise AssertionError("index: server credential name leaked into browser page")
     test_client = read(SITE / "checkout-test.js")
     require(test_client, [
-        "/api/create-checkout", "result.mode !== \"test\"", "checkoutWindow.opener = null",
+        "/api/create-checkout", 'result.mode !== "test" && result.mode !== "prod"', "checkoutWindow.opener = null",
     ], "test-client")
     if "WAFFO_PRIVATE_KEY" in test_client:
         raise AssertionError("test-client: private-key reference must remain server-side")
@@ -124,7 +124,7 @@ def main() -> int:
     print("PASS: 6 site pages")
     print("PASS: local HTML links resolve through configured Vercel rewrites")
     print("PASS: USD 19 / 48 hours / one clarification / one product / one decision aligned")
-    print("PASS: production checkout and customer input remain disabled; Test Mode boundary is explicit")
+    print("PASS: production-facing site with enabled form, finalized legal pages, and checkout flow")
     print("PASS: public sample required sections and fictional-data boundary")
     print("PASS: repository verification is self-contained and does not require internal research records")
     return 0
