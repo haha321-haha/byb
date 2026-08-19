@@ -18,10 +18,10 @@ decision report for AI solo founders.
 ## Published decision
 
 The footer shows the current BYB self decision: `WATCH · confidence 0.55`
-(`dec_byb_self_001`, score 61.2, rule version 0.2.0). 0.55 is the value after
-the v0.2 source-dominance cap is applied; the uncapped v0.1 record (0.66) is
-historical and must not be displayed. Keep the footer in sync with
-`cases/byb-self/decision-v0.2.json` in the internal BYB OS repository.
+(`dec_byb_self_002`, score 61.2, rule version 0.2.0). 0.55 is the value after
+the v0.2 source-dominance cap is applied; the uncapped v0.1 record (0.66,
+`dec_byb_self_001`) is historical and must not be displayed. Keep the footer
+in sync with `cases/byb-self/decision-v0.2.json` in the internal BYB OS repository.
 
 The internal BYB OS research repository, evidence corpus, reviews, outreach
 records, candidate lists, and commercial scorecards are intentionally excluded.
