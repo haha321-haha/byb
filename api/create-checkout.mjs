@@ -116,9 +116,10 @@ export default async function handler(req, res) {
         details: error?.details ?? [],
       });
     }
-    console.error("Waffo checkout creation failed");
+    console.error("Waffo checkout creation failed", error?.message ?? error);
     return res.status(502).json({
       error: "Checkout could not be created.",
+      details: [error?.message ?? String(error)],
     });
   }
 }
